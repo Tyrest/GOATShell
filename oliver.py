@@ -9,10 +9,7 @@ For example:
             etc
 '''
 def echo(args, flags):
-	s = ""
-	for a in args: s += a + " "
-	for f in flags: s += f + " "
-	print(s[:-1])
+	print(" ".join(args + flags))
 
 #should be in main??
 #Returns closest named function to input
@@ -33,8 +30,8 @@ def autocomplete(input, names):
 			ed = lambda x: math.sqrt((keyboard[c][0] - keyboard[x][0])**2 + (keyboard[c][1] - keyboard[x][1])**2)
 			newString += min(a, key=ed)
 		newStrings.append(newString)
-	m = None
 	#3) Returns item in newStrings closest to corresponding function
+	m = None
 	for word1,word2,word3 in zip(newNames, newStrings, names):
 		dis = sum((math.sqrt((keyboard[a][0] - keyboard[b][0])**2 + (keyboard[a][1] - keyboard[b][1])**2) for a, b in zip(word1, word2)))
 		if not m or dis/len(word1)<m[0]:
