@@ -5,7 +5,10 @@ def ls(args, flags):
 # Return none if arguments or flags are not valid
 # oliver
 def echo(args, flags):
-    pass
+    s = ""
+    for a in args: s += a + " "
+    for f in flags: s += f + " "
+    print(s[:-1])
 
 # Return none if arguments or flags are not valid
 def jobs(args, flags):
