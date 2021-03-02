@@ -8,7 +8,7 @@ def echo(args, flags):
     s = ""
     for a in args: s += a + " "
     for f in flags: s += f + " "
-    print(s[:-1])
+    return s[:-1]
 
 # Return none if arguments or flags are not valid
 def jobs(args, flags):
