@@ -1,10 +1,15 @@
 import os
 
-print(os.getcwd())
-print(os.listdir(os.getcwd()))
-
 def ls_long(ls_output):
     return ls_output
+
+def ls_rec(current_directory, depth):
+    to_return = []
+    for path in os.listdir(current_directory):
+        to_return.append("| "*depth + "{}".format(path))
+        if not os.path.isfile("{}\\{}".format(current_directory, path)) and path[0] != '.':
+            to_return += ls_rec("{}\\{}".format(current_directory, path), depth + 1)
+    return to_return
 
 def ls(args, flags):
     # Implement Recursive ls here (-R)
