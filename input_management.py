@@ -9,15 +9,19 @@ class input_manager:
         to_return = []
 
         # loop through each function call and separate args from flags
+        num_range = range(ord('0'), ord('9')+1)
         for t_list in tokens:
             new_list = [t_list[0], [], []]
             for t in t_list[1:]:
                 if t[0] == '-':
-                    new_list[2].append(t)
+                    # flags with numbers should be arguments
+                    if len(t) >= 2 and ord(t[1]) in num_range:
+                        new_list[1].append(t)
+                    else:
+                        new_list[2].append(t)
                 else:
                     new_list[1].append(t)
             to_return.append(new_list)
-        print(to_return)
         return to_return
 
     # Return true if functions exist, false otherwise
