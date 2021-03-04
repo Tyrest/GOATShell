@@ -10,10 +10,10 @@ class input_manager:
 
         # loop through each function call and separate args from flags
         for t_list in tokens:
-            new_list = [t_list[0], [], []]
+            new_list = [t_list[0], [], ""]
             for t in t_list[1:]:
                 if t[0] == '-':
-                    new_list[2].append(t)
+                    new_list[2] += t[1:]
                 else:
                     new_list[1].append(t)
             to_return.append(new_list)
