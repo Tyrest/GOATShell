@@ -20,7 +20,7 @@ def main():
 	im = input_management.input_manager(functions)
 	builtin_names = list(functions.keys())
 	while(True):
-		stdin = input("GOATShell: ")
+		stdin = input("GOATS: ")
 		t = im.parse(stdin)
 		pipe_input = None
 		for fncall in t:
