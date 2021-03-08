@@ -1,3 +1,5 @@
+import os
+
 # Takes in complete path or end of path as argument
 # flags: none
 def cd(args, flags):

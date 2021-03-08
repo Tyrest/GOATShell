@@ -29,7 +29,7 @@ def main():
 			
 			try:
 				if fn_name not in builtin_names:
-					output = exec_process([fn_name] + fn_flags + fn_args)
+					output = exec_process([fn_name] + [fn_flags] + fn_args)
 					if pipe_input != None: pipe_input.close()
 				else:
 					output = functions[fncall[0]](fn_args, fn_flags)
