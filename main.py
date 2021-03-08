@@ -8,41 +8,12 @@ import sys
 import subprocess
 import tempfile
 
-# Takes in complete path or end of path as argument
-# flags: none
-def cd(args, flags):
-	if args == ['..']:
-		parent = os.path.dirname(os.getcwd())
-		os.chdir(parent)
-	elif args == ['~']:
-		home = os.getenv("HOME")
-		os.chdir(home)
-	else:
-		try:
-			os.chdir(args[0])
-		except TypeError:
-			raise TypeError('Bad arguments, try again')
-		except OSError:
-			raise OSError("Invalid or inaccessible file names and paths")
-		except FileNotFoundError:
-			raise FileNotFoundError('No such file or directory')
-		except:
-			raise Exception('Bad input, try again')
-
-# Returns path of current working directory
-def pwd(args, flags):
-	print(os.getcwd())
-
-def help(args, flags):
-	pass
-
 # Exit program
 def exit(args, flags):
 	sys.exit(0)
 
 functions = dict(getmembers(basic_programs, isfunction) + getmembers(extras, isfunction))
-functions.update([('pwd', pwd), ('cd', cd), ('help', help), ('exit', exit)])
-
+functions.update([('exit', exit)])
 
 # Main shell loop
 def main():
