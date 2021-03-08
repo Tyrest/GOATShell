@@ -5,6 +5,8 @@ import extras
 from inspect import getmembers, isfunction
 import os
 import sys
+import subprocess
+import tempfile
 
 # Takes in complete path or end of path as argument
 # flags: none
@@ -20,6 +22,8 @@ def cd(args, flags):
 			os.chdir(args[0])
 		except TypeError:
 			raise TypeError('Bad arguments, try again')
+		except OSError:
+			raise OSError("Invalid or inaccessible file names and paths")
 		except FileNotFoundError:
 			raise FileNotFoundError('No such file or directory')
 		except:
@@ -32,30 +36,54 @@ def pwd(args, flags):
 def help(args, flags):
 	pass
 
+# Exit program
 def exit(args, flags):
 	sys.exit(0)
 
-
 functions = dict(getmembers(basic_programs, isfunction) + getmembers(extras, isfunction))
-functions.update([('pwd', pwd), ('cd', cd), ('exit', exit)])
+functions.update([('pwd', pwd), ('cd', cd), ('help', help), ('exit', exit)])
 
+
+# Main shell loop
 def main():
-	loop()
-
-def loop():
 	im = input_management.input_manager(functions)
+	builtin_names = list(functions.keys())
 	while(True):
 		stdin = input("GOATShell: ")
 		t = im.parse(stdin)
+		pipe_input = None
 		for fncall in t:
 			fn_name = fncall[0]; fn_args = fncall[1]; fn_flags = fncall[2]
+			if pipe_input != None: fn_args.append(pipe_input.name)
+			
 			try:
-				output = functions[fncall[0]](fn_args, fn_flags)
-			except KeyError:
-				print("Error: no such method")
+				if fn_name not in builtin_names:
+					output = exec_process([fn_name] + fn_flags + fn_args)
+					if pipe_input != None: pipe_input.close()
+				else:
+					output = functions[fncall[0]](fn_args, fn_flags)
+					if output != None: output = output.encode('utf-8')
+				if output != None: 
+					print(output.decode('utf-8'))
+
+					# Pass temporary file to next function call
+					pipe_input = tempfile.NamedTemporaryFile()
+					pipe_input.write(output); pipe_input.seek(0)
 			except Exception as e:
 				print(type(e).__name__ + ": " + str(e.args[0]))
 
+# Executes process
+def exec_process(tokens):
+	try:
+		p = subprocess.Popen(tokens, shell=False, stdin = subprocess.PIPE,stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+		print("Args: " + str(p.args))
+		out, err = p.communicate(timeout=100)
+		return out
+	except subprocess.TimeoutExpired:
+		print("Timeout expired. Killing process...")
+		p.kill()
+	except Exception as e:
+		print(type(e).__name__ + ": " + str(e.args[0]))
 
 if __name__ == '__main__':
 	main()
