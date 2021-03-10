@@ -45,23 +45,28 @@ def djoosh(args, flags):
 # Read from the file and print out the standard help
 def help(args, flags): 
 	everything_dictionary = {"cd": "takes the user to a specified directory",
-							"pwd": "what the fuck does it do [flags]", 
+							"pwd": "prints the working directory", 
 							"help": "displays a list of commands and flags and what each does", 
-							"exit": "what the fuck does it do [flags]", 
-							"ls": "gives the user a list of everything within the directory [-d (?), -S (sorts files by size), -a (displays all files, including hidden ones), -s (displays number of bytes), -l (displays long format), -X (?)]", 
+							"exit": "exits the terminal", 
+							"ls": "gives the user a list of everything within the directory", 
 							"echo": "repeats user input", 
-							"jobs": "what the fuck does it do [flags]", 
+							"jobs": "lists all active jobs", 
 							"bg": "move jobs to the background", 
 							"fg": "move jobs to the foreground", 
 
 							"SpONgeBoBtEXt": "randomly capitalizes letters in user input",
-							"meme": "generates a random meme [flags?]", 
-							"mege": "makes a meme using user input [flags?]", 
-							"djoosh": "saves favorited songs in a temporary file to be added or removed [-a (adds a song), -r (removes a song)]", 
+							"meme": "generates a random meme", 
+							"mege": "makes a meme using user input", 
+							"djoosh": "makes an array for favorited songs", 
 							"autocomplete": "returns the closest named command"}
 
 
-
+	if args:
+		for arg in args:
+			if arg in everything_dictionary: 
+				print(arg + " " + everything_dictionary[arg])
+	else:
+		print(everything_dictionary)
 
 
 djoosh([], [])
