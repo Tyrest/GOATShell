@@ -46,4 +46,11 @@ def ls(args, flags):
 
     return to_return
 
-print(ls([], []))
+import psutil
+
+dict_pids = {
+    p.info["pid"]: p.info["name"]
+    for p in psutil.process_iter(attrs=["pid", "name"])
+}
+
+print(dict_pids)
