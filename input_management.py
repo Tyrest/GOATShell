@@ -4,6 +4,8 @@ class input_manager:
 
     # Return [[function 1, arglist 1, flags 1], [function 2, arglist 2, flags 2]]
     def parse(self, stdin):
+        if len(stdin.strip()) == 0:
+            return None
         tokens = stdin.split("|")
         tokens = list(map(lambda x: x.split(), tokens))
         to_return = []
