@@ -23,6 +23,8 @@ def djoosh(args, flags):
 	flag_dictionary = {"-a": add,
 						"-r": remove}
 
+	return song_list
+
 
 def help(args, flags): 
 	everything_dictionary = {"cd": "takes the user to a specified directory",
