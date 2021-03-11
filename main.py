@@ -31,15 +31,15 @@ def main():
 
 		pipe_input = None
 		for fncall in t:
-			fn_name = fncall[0]; fn_args = fncall[1]; fn_flags = fncall[2]
+			fn_name = fncall[0]; fn_args = fncall[1]
 			if pipe_input != None: fn_args.append(pipe_input.name)
 			
 			try:
 				if fn_name not in builtin_names:
-					output = exec_process([fn_name] + [fn_flags] + fn_args)
+					output = exec_process([fn_name] + fn_args)
 					if pipe_input != None: pipe_input.close()
 				else:
-					output = functions[fncall[0]](fn_args, fn_flags)
+					output = functions[fncall[0]](fn_args, [])
 					if output != None: output = output.encode('utf-8')
 				if output != None: 
 					print(output.decode('utf-8'))
@@ -58,6 +58,8 @@ def exec_process(tokens):
 		p = subprocess.Popen(tokens, shell=False, stdin = subprocess.PIPE,stdout=subprocess.PIPE, stderr = subprocess.PIPE)
 		print("Args: " + str(p.args))
 		out, err = p.communicate(timeout=1000)
+		print(out.decode('utf-8'))
+		print(err.decode('utf-8'))
 		return out
 	except subprocess.TimeoutExpired:
 		print("Timeout expired. Killing process...")
