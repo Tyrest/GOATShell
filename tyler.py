@@ -48,9 +48,20 @@ def ls(args, flags):
 
 import psutil
 
-dict_pids = {
-    p.info["pid"]: p.info["name"]
-    for p in psutil.process_iter(attrs=["pid", "name"])
-}
+current_process = psutil.Process()
+children = current_process.children(recursive=True)
 
-print(dict_pids)
+print(children)
+
+# dict_pids = {
+#     p.info["pid"]: p.info["name"]
+#     for p in psutil.process_iter(attrs=["pid", "name"])
+# }
+
+# print(dict_pids)
+
+import subprocess
+
+while True:
+    stdin = input("GOATS: ")
+    p = subprocess.Popen(stdin, shell=True)
