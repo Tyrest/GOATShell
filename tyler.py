@@ -61,6 +61,8 @@ print(children)
 # print(dict_pids)
 
 import subprocess
+ls_output=subprocess.Popen(["sleep", "5"])
+print("{}\t{}\t{}".format(ls_output.pid, "RUNNING" if ls_output.poll() is None else "DONE", " ".join(ls_output.args)))
 
 while True:
     stdin = input("GOATS: ")
