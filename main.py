@@ -10,8 +10,9 @@ import tempfile
 import signal
 import io
 
-def signal_handler(signal, frame):
-	print("Signal")
+def signal_handler(sig, frame):
+	print(signal.strsignal(sig))
+	raise Exception("Signal")
 
 # Exit program
 def exit(args, flags):
@@ -49,21 +50,21 @@ def main():
 					pipe_input.write(output); pipe_input.seek(0)
 			except Exception as e:
 				print(type(e).__name__ + ": " + str(e.args[0]))
-		print("Current process" + str(os.getpid()))
 
 # Executes process
 def exec_process(tokens):
 	try:
 		signal.signal(signal.SIGINT, signal_handler)
-		p = subprocess.Popen(tokens, shell=False, stdin = subprocess.PIPE,stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+		# signal.signal(signal.SIGSTP, signal_handler)
+		p = subprocess.Popen(tokens, shell=True, stdin = subprocess.PIPE,stdout=subprocess.PIPE, stderr = subprocess.PIPE)
 		print("Args: " + str(p.args))
 		out, err = p.communicate(timeout=1000)
-		print(out.decode('utf-8'))
-		print(err.decode('utf-8'))
-		return out
+		return out + err
 	except subprocess.TimeoutExpired:
 		print("Timeout expired. Killing process...")
 		p.kill()
+		out, err = p.communicate(timeout=1000)
+		return out + err
 	except Exception as e:
 		print(type(e).__name__ + ": " + str(e.args[0]))
 
