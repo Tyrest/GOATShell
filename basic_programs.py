@@ -1,4 +1,5 @@
 import os
+import signal
 
 # Takes in complete path or end of path as argument
 # flags: none
@@ -34,8 +35,9 @@ def jobs(args, flags):
 
 # Return none if arguments or flags are not valid
 def bg(args, flags):
-    pass
+    os.kill(args[0], signal.SIGCONT)
+
 
 # Return none if arguments or flags are not valid
 def fg(args, flags):
-    pass
+    os.kill(args[0], signal.SIGCONT)
