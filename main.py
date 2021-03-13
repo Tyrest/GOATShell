@@ -19,7 +19,7 @@ def exit(args, flags):
 	sys.exit(0)
 
 functions = dict(getmembers(basic_programs, isfunction) + getmembers(extras, isfunction))
-functions.update([('exit', exit)])
+functions.update([('exit', exit)]) 
 
 # Main shell loop
 def main():
@@ -57,6 +57,7 @@ def exec_process(tokens):
 		signal.signal(signal.SIGINT, signal_handler)
 		# signal.signal(signal.SIGSTP, signal_handler)
 		p = subprocess.Popen(tokens, shell=True, stdin = subprocess.PIPE,stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+		basic_programs.processes.append(p)
 		print("Args: " + str(p.args))
 		out, err = p.communicate(timeout=1000)
 		return out + err

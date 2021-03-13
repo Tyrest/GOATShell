@@ -1,6 +1,8 @@
 import os
 import signal
 
+processes = []
+
 # Takes in complete path or end of path as argument
 # flags: none
 def cd(args, flags):
@@ -27,11 +29,12 @@ def pwd(args, flags):
 	print(os.getcwd())
 
 def help(args, flags):
-	pass
+    pass
 
 # Return none if arguments or flags are not valid
 def jobs(args, flags):
-    pass
+    for p in processes:
+        print("{}\t{}\t{}".format(p.pid, "running" if p.poll() is None else "done", " ".join(p.args)))
 
 # Return none if arguments or flags are not valid
 def bg(args, flags):

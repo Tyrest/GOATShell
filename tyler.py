@@ -46,13 +46,6 @@ def ls(args, flags):
 
     return to_return
 
-import psutil
-
-current_process = psutil.Process()
-children = current_process.children(recursive=True)
-
-print(children)
-
 # dict_pids = {
 #     p.info["pid"]: p.info["name"]
 #     for p in psutil.process_iter(attrs=["pid", "name"])
@@ -61,9 +54,17 @@ print(children)
 # print(dict_pids)
 
 import subprocess
-ls_output=subprocess.Popen(["sleep", "5"])
-print("{}\t{}\t{}".format(ls_output.pid, "RUNNING" if ls_output.poll() is None else "DONE", " ".join(ls_output.args)))
+import psutil
+p = subprocess.Popen("echo 5", shell=True)
+p.wait()
+print("{}\t{}\t{}".format(p.pid, "running" if p.poll() is None else "done", p.args))
 
-while True:
-    stdin = input("GOATS: ")
-    p = subprocess.Popen(stdin, shell=True)
+current_process = psutil.Process()
+children = current_process.children(recursive=True)
+
+for child in children:
+    print("{}\t{}\t{}".format(child.pid, child.status(), child.name()))#, " ".join(child.args)))
+
+# while True:
+#     stdin = input("GOATS: ")
+#     p = subprocess.Popen(stdin, shell=True)
