@@ -1,5 +1,6 @@
 import os
 import signal
+import subprocess
 
 processes = []
 
@@ -29,18 +30,20 @@ def pwd(args, flags):
 	print(os.getcwd())
 
 def help(args, flags):
-    pass
+	pass
 
 # Return none if arguments or flags are not valid
 def jobs(args, flags):
-    for p in processes:
-        print("{}\t{}\t{}".format(p.pid, "running" if p.poll() is None else "done", " ".join(p.args)))
+	global processes
+	for p in processes:
+		print("{}\t{}\t{}".format(p.pid, "running" if p.poll() is None else "done", " ".join(p.args)))
+	processes = list(filter(lambda x : x.poll() == None, processes))
 
 # Return none if arguments or flags are not valid
 def bg(args, flags):
-    os.kill(args[0], signal.SIGCONT)
-
+	os.kill(args[0], signal.SIGCONT)
+	subprocess.call(args[0])
 
 # Return none if arguments or flags are not valid
 def fg(args, flags):
-    os.kill(args[0], signal.SIGCONT)
+	os.kill(args[0], signal.SIGCONT)
