@@ -1,6 +1,7 @@
 import os
 import signal
 import subprocess
+import time
 
 processes = []
 
@@ -37,13 +38,20 @@ def jobs(args, flags):
 	global processes
 	for p in processes:
 		print("{}\t{}\t{}".format(p.pid, "running" if p.poll() is None else "done", " ".join(p.args)))
-	processes = list(filter(lambda x : x.poll() == None, processes))
+	# processes = list(filter(lambda x : x.poll() == None, processes))
 
 # Return none if arguments or flags are not valid
 def bg(args, flags):
-	os.kill(args[0], signal.SIGCONT)
-	subprocess.call(args[0])
+	pid = int(args[0])
+	p = next(iter([x for x in processes if x.pid == pid]))
+	p.send_signal(signal.SIGCONT)
 
 # Return none if arguments or flags are not valid
 def fg(args, flags):
-	os.kill(args[0], signal.SIGCONT)
+	pid = int(args[0])
+	p = next(iter([x for x in processes if x.pid == pid]))
+	p.send_signal(signal.SIGCONT)
+	out, err = p.communicate(timeout=1000)
+
+def test(args, flags):
+	time.sleep(int(args[0]))

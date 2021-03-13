@@ -56,7 +56,7 @@ def exec_process(tokens):
 	try:
 		signal.signal(signal.SIGINT, signal_handler)
 		# signal.signal(signal.SIGSTP, signal_handler)
-		p = subprocess.Popen(tokens, shell=True, stdin = subprocess.PIPE,stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+		p = subprocess.Popen(tokens, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		basic_programs.processes.append(p)
 		print("Args: " + str(p.args))
 		out, err = p.communicate(timeout=1000)
