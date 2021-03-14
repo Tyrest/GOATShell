@@ -2,13 +2,15 @@
 def add(song_list, val):
 	if val not in song_list: 
 		song_list.append(val)
+		return "Song successfully added"
 	else: 
-		return "Song has already been added"
+		return "Song already added"
 
 
 def remove(song_list, val):
 	if val in song_list: 
 		song_list.remove(val)
+		return "Song successfully removed"
 	else: 
 		return "Song does not exist"
 
