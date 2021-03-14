@@ -15,7 +15,6 @@ def remove(song_list):
 		print("Not in the file")
 
 
-
 # Basic Idea: Saves songs that you like in a file that you can add or remove
 def djoosh(args, flags):
 	song_list = []
