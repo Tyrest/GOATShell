@@ -20,11 +20,3 @@ class input_manager:
 
         # separate fn name from args
         return bg, list(map(lambda x: [x[0], x[1:]], tokens))
-
-    # Return true if functions exist, false otherwise
-    def check_input(self, input_functions):
-        names = [self.functions[i][0] for i in range(len(self.functions))]
-        for f in input_functions:
-            if f[0] not in names:
-                return False
-        return True
