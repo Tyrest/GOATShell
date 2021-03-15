@@ -26,7 +26,7 @@ def signal_none(sig, frame):
 
 # Exit program
 def exit(args, flags):
-	for p in basic_programs.processes:
+	for p, status in basic_programs.processes.values():
 		p.kill()
 	sys.exit(0)
 
@@ -73,11 +73,11 @@ def exec_command(stdin, im):
 			if pipe_input is not None: pipe_input.close()
 		else:
 			output = builtins[fncall[0]](fn_args, [])
-			if output is not None: output = output.encode('utf-8')
-
-		# Pass temporary file to next function call
-		pipe_input = tempfile.NamedTemporaryFile()
-		pipe_input.write(output); pipe_input.seek(0)
+			if output is not None:
+				output = output.encode('utf-8')
+				# Pass temporary file to next function call
+				pipe_input = tempfile.NamedTemporaryFile()
+				pipe_input.write(output); pipe_input.seek(0)
 	return output
 
 # Executes non-built-in from tokens
@@ -92,7 +92,8 @@ def exec_process(tokens, bg):
 			out, err = p.communicate(timeout=10**3)
 			return out + err
 		else:
-			basic_programs.processes.append(p)
+			print(p.pid)
+			basic_programs.processes[p.pid] = [p, "running"]
 			return None
 
 	except subprocess.TimeoutExpired:
@@ -104,7 +105,7 @@ def exec_process(tokens, bg):
 	except Exception as e:
 		if e.args[0] == signal.strsignal(signal.SIGTSTP):
 			p.send_signal(signal.SIGTSTP)
-			basic_programs.processes.append(p)
+			basic_programs.processes[p.pid] = [p, "stopped"]
 		elif e.args[0] == signal.strsignal(signal.SIGINT):
 			p.send_signal(signal.SIGINT)
 		display_exception(e)

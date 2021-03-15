@@ -3,7 +3,7 @@ import signal
 import subprocess
 import time
 
-processes = []
+processes = {}
 
 # Takes in complete path or end of path as argument
 # flags: none
@@ -36,22 +36,32 @@ def help(args, flags):
 # Return none if arguments or flags are not valid
 def jobs(args, flags):
 	global processes
-	for p in processes:
-		print("{}\t{}\t{}".format(p.pid, "running" if p.poll() is None else "done", " ".join(p.args)))
-	processes = list(filter(lambda x : x.poll() == None, processes))
+	to_return = ""
+	new_dict = {}
+	for pid, val in processes.items():
+		if val[0].poll() != None:
+			val[1] = "done"
+		to_return += "{}\t{}\t{}\n".format(pid, val[1], " ".join(val[0].args))
+		if val[1] != "done":
+			new_dict[pid] = val
+		else:
+			val[0].kill()
+	processes = new_dict
+	return to_return
 
 # Return none if arguments or flags are not valid
 def bg(args, flags):
 	pid = int(args[0])
-	p = next(iter([x for x in processes if x.pid == pid]))
-	p.send_signal(signal.SIGCONT)
+	processes[pid][0].send_signal(signal.SIGCONT)
+	processes[pid][1] = "running"
 
 # Return none if arguments or flags are not valid
 def fg(args, flags):
 	pid = int(args[0])
-	p = next(iter([x for x in processes if x.pid == pid]))
-	p.send_signal(signal.SIGCONT)
+	processes[pid][0].send_signal(signal.SIGCONT)
+	processes[pid][1] = "running"
 	out, err = p.communicate(timeout=1000)
+	processes[pid][1] = "done"
 
 def test(args, flags):
 	time.sleep(int(args[0]))
