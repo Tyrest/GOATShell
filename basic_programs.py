@@ -38,8 +38,6 @@ def jobs(args, flags):
 	global processes
 	for p in processes:
 		print("{}\t{}\t{}".format(p.pid, "running" if p.poll() is None else "done", " ".join(p.args)))
-		if p.poll() != None:
-			p.terminate()
 	processes = list(filter(lambda x : x.poll() == None, processes))
 
 # Return none if arguments or flags are not valid
