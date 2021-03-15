@@ -1,19 +1,18 @@
 
-def add(song_list):
-	val = input("Enter song to add: ")
-	if val not in temp: 
+def add(song_list, val):
+	if val not in song_list: 
 		song_list.append(val)
+		return "Song successfully added"
 	else: 
-		print("Already in the file")
+		return "Song already added"
 
 
-def remove(song_list):
-	val = input("Enter song to remove: ")
-	if val in temp: 
+def remove(song_list, val):
+	if val in song_list: 
 		song_list.remove(val)
+		return "Song successfully removed"
 	else: 
-		print("Not in the file")
-
+		return "Song does not exist"
 
 
 # Basic Idea: Saves songs that you like in a file that you can add or remove
