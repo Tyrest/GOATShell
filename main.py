@@ -57,6 +57,9 @@ def main():
 def exec_command(stdin, im):
 	builtins = im.functions
 	builtin_names = list(builtins.keys())
+	# handle case of subcommands
+	while '$(' in stdin:
+		stdin = subcommand_handler(stdin, im)
 	bg, t = im.parse(stdin)
 
 	pipe_input = None
@@ -105,6 +108,22 @@ def exec_process(tokens, bg):
 		elif e.args[0] == signal.strsignal(signal.SIGINT):
 			p.send_signal(signal.SIGINT)
 		display_exception(e)
+
+# For command substitution
+# Replaces deepest instance of $(command) with output from command
+def subcommand_handler(stdin, im):
+	# find deepest occurence of $, index = len(stdin) - 1 - (first index of $ in reversed stdin)
+	index1 = len(stdin) - 1 - (stdin[::-1].index('($'))
+	index2 = stdin.index(')', index1)
+	c = stdin[index1 + 1 : index2]
+	
+	# execute command 
+	output = exec_command(c, im)
+	if output is None: 
+		output = ''
+
+	# replace $(command) with output
+	return stdin.replace('$(' + c + ')', output.decode('utf-8').strip())
 
 if __name__ == '__main__':
 	main()
