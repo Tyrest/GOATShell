@@ -47,7 +47,7 @@ def jobs(args, flags):
 		else:
 			val[0].kill()
 	processes = new_dict
-	return to_return
+	return to_return.strip()
 
 # Return none if arguments or flags are not valid
 def bg(args, flags):
@@ -61,6 +61,8 @@ def fg(args, flags):
 	p.send_signal(signal.SIGCONT)
 	out, err = p.communicate(timeout=1000)
 
+# Checks processes in list, prints out status/process if jobs are done and removes the process from the jobs list
+# If any processes terminated improperly, print out the signal 
 def check_processes():
 	global processes
 	new_dict = {}
