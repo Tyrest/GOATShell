@@ -52,6 +52,7 @@ def main():
 				print(output.decode('utf-8').strip())
 		except Exception as e:
 			display_exception(e)
+		basic_programs.check_processes()
 		
 # Executes the command passed in from stdin
 def exec_command(stdin, im):

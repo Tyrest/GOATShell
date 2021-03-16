@@ -57,11 +57,22 @@ def bg(args, flags):
 
 # Return none if arguments or flags are not valid
 def fg(args, flags):
-	pid = int(args[0])
-	processes[pid][0].send_signal(signal.SIGCONT)
-	processes[pid][1] = "running"
-	out, err = processes[pid][0].communicate(timeout=1000)
-	processes[pid][1] = "done"
+	p, status = processes.pop(args[0])
+	p.send_signal(signal.SIGCONT)
+	out, err = p.communicate(timeout=1000)
 
-def test(args, flags):
-	time.sleep(int(args[0]))
+def check_processes():
+	global processes
+	new_dict = {}
+	for pid, val in processes.items():
+		if val[0].poll() != None:
+			val[1] = "done"
+			print("{}\t{}\t{}\n".format(pid, val[1], " ".join(val[0].args)))
+			status = val[0].returncode
+			if status:
+				print("Process was terminated improperly")
+			val[0].kill()
+		else:
+			new_dict[pid] = val
+	processes = new_dict
+			
