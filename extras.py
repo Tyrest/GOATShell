@@ -27,16 +27,16 @@ def SpONgeBoBtEXt(args):
 # Creates an Array of favorite songs where you can add or remove songs
 song_list = []
 
-def djooshAdd(args, flags, song_list, val):
-	if val not in song_list: 
-		song_list.append(val)
+def djooshAdd(args, flags):
+	if args not in song_list: 
+		song_list.append(args)
 		return "Song successfully added"
 	else: 
 		return "Song already added"
 
-def djooshRemove(args, flags, song_list, val):
-	if val in song_list: 
-		song_list.remove(val)
+def djooshRemove(args, flags):
+	if args in song_list: 
+		song_list.remove(args)
 		return "Song successfully removed"
 	else: 
 		return "Song does not exist"
