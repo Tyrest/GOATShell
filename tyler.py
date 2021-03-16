@@ -68,3 +68,7 @@ for child in children:
 # while True:
 #     stdin = input("GOATS: ")
 #     p = subprocess.Popen(stdin, shell=True)
+
+import subprocess
+p = subprocess.Popen(['/bin/echo', 'hello'], stdout = open('/Users/Sarah/Desktop/GOATShell/sarah.py', 'w'))
+p.communicate()

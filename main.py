@@ -38,6 +38,8 @@ def main():
 
 	im = input_management.input_manager(functions)
 	while(True):
+		basic_programs.check_processes()
+		
 		signal.signal(signal.SIGINT, signal_none)
 		signal.signal(signal.SIGTSTP, signal_none)
 		try:
@@ -52,7 +54,6 @@ def main():
 				print(output.decode('utf-8').strip())
 		except Exception as e:
 			display_exception(e)
-		basic_programs.check_processes()
 		
 # Executes the command passed in from stdin
 def exec_command(stdin, im):
@@ -73,7 +74,7 @@ def exec_command(stdin, im):
 			output = exec_process([fn_name] + fn_args, bg)
 			if pipe_input is not None: pipe_input.close()
 		else:
-			output = builtins[fncall[0]](fn_args, [])
+			output = builtins[fncall[0]](fn_args)
 			if output is not None:
 				output = output.encode('utf-8')
 				# Pass temporary file to next function call

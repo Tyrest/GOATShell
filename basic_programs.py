@@ -7,7 +7,7 @@ processes = {}
 
 # Takes in complete path or end of path as argument
 # flags: none
-def cd(args, flags):
+def cd(args):
 	if args == ['..']:
 		parent = os.path.dirname(os.getcwd())
 		os.chdir(parent)
@@ -27,14 +27,14 @@ def cd(args, flags):
 			raise Exception('Bad input, try again')
 
 # Returns path of current working directory
-def pwd(args, flags):
+def pwd(args):
 	print(os.getcwd())
 
-def help(args, flags):
+def help(args):
 	pass
 
 # Return none if arguments or flags are not valid
-def jobs(args, flags):
+def jobs(args):
 	global processes
 	to_return = ""
 	new_dict = {}
@@ -50,13 +50,13 @@ def jobs(args, flags):
 	return to_return.strip()
 
 # Return none if arguments or flags are not valid
-def bg(args, flags):
+def bg(args):
 	pid = int(args[0])
 	processes[pid][0].send_signal(signal.SIGCONT)
 	processes[pid][1] = "running"
 
 # Return none if arguments or flags are not valid
-def fg(args, flags):
+def fg(args):
 	p, status = processes.pop(args[0])
 	p.send_signal(signal.SIGCONT)
 	out, err = p.communicate(timeout=1000)
