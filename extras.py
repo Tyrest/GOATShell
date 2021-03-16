@@ -24,11 +24,6 @@ def SpONgeBoBtEXt(args):
 
 	return spongetext
 
-if Spongetext == true:
-	text = SpONgeBoBtEXt(text)
-print(text)
-
-
 # Return none if arguments or flags are not valid
 # oosh
 def add(song_list, val):
