@@ -1,5 +1,8 @@
-def autocomplete(input, names):
-	import math
+import math
+names = ['ls', 'echo', 'help', 'cd', 'pwd', 'jobs', 'fg', 'bg', 'exit', 'SpONgeBoBtEXt', 'djooshAdd', 'djooshRemove']
+
+def autocomplete(args, flags):
+	input = args[0]
 	#1) Remove all non-letter characters from strings
 	keepLetters = lambda x: "".join([c for c in x if c.isalpha()])
 	newNames = list(map(lambda x: keepLetters(x).lower(), names))
