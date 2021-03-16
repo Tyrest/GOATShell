@@ -60,7 +60,7 @@ def fg(args, flags):
 	pid = int(args[0])
 	processes[pid][0].send_signal(signal.SIGCONT)
 	processes[pid][1] = "running"
-	out, err = p.communicate(timeout=1000)
+	out, err = processes[pid][0].communicate(timeout=1000)
 	processes[pid][1] = "done"
 
 def test(args, flags):
