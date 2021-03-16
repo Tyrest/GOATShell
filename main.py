@@ -10,6 +10,13 @@ import tempfile
 import signal
 import io
 
+def display_exception(e):
+	to_print = type(e).__name__
+	if len(e.args) != 0:
+		to_print += ": " + str(e.args[0])
+	print(to_print)
+
+# Signal handler for while a process is running
 def signal_handler(sig, frame):
 	raise Exception(signal.strsignal(sig))
 
@@ -19,15 +26,17 @@ def signal_none(sig, frame):
 
 # Exit program
 def exit(args, flags):
+	for p, status in basic_programs.processes.values():
+		p.kill()
 	sys.exit(0)
-
-functions = dict(getmembers(basic_programs, isfunction) + getmembers(extras, isfunction))
-functions.update([('exit', exit)]) 
 
 # Main shell loop
 def main():
+	# get functions from files
+	functions = dict(getmembers(basic_programs, isfunction) + getmembers(extras, isfunction))
+	functions.update([('exit', exit)]) 
+
 	im = input_management.input_manager(functions)
-	builtin_names = list(functions.keys())
 	while(True):
 		signal.signal(signal.SIGINT, signal_none)
 		signal.signal(signal.SIGTSTP, signal_none)
@@ -35,31 +44,44 @@ def main():
 			stdin = input("GOATS: ")
 		except Exception:
 			continue
-		bg, t = im.parse(stdin)
-		if t == None: continue
+		if len(stdin.strip()) == 0:
+			continue
+		try:
+			output = exec_command(stdin, im)
+			if output is not None: 
+				print(output.decode('utf-8').strip())
+		except Exception as e:
+			display_exception(e)
+		
+# Executes the command passed in from stdin
+def exec_command(stdin, im):
+	builtins = im.functions
+	builtin_names = list(builtins.keys())
+	# handle case of subcommands
+	while '$(' in stdin:
+		stdin = subcommand_handler(stdin, im)
+	bg, t = im.parse(stdin)
 
-		pipe_input = None
-		for fncall in t:
-			fn_name = fncall[0]; fn_args = fncall[1]
-			if pipe_input != None: fn_args.append(pipe_input.name)
-			
-			try:
-				if fn_name not in builtin_names:
-					output = exec_process([fn_name] + fn_args, bg)
-					if pipe_input != None: pipe_input.close()
-				else:
-					output = functions[fncall[0]](fn_args, [])
-					if output != None: output = output.encode('utf-8')
-				if output != None: 
-					print(output.decode('utf-8'))
+	pipe_input = None
+	for fncall in t:
+		fn_name = fncall[0]; fn_args = fncall[1]
+		
+		if pipe_input is not None: fn_args.append(pipe_input.name)
 
-					# Pass temporary file to next function call
-					pipe_input = tempfile.NamedTemporaryFile()
-					pipe_input.write(output); pipe_input.seek(0)
-			except Exception as e:
-				print(type(e).__name__ + ": " + str(e.args[0]))
+		if fn_name not in builtin_names:
+			output = exec_process([fn_name] + fn_args, bg)
+			if pipe_input is not None: pipe_input.close()
+		else:
+			output = builtins[fncall[0]](fn_args, [])
+			if output is not None:
+				output = output.encode('utf-8')
+				# Pass temporary file to next function call
+				pipe_input = tempfile.NamedTemporaryFile()
+				pipe_input.write(output); pipe_input.seek(0)
+	return output
 
-# Executes process
+# Executes non-built-in from tokens
+# bg is True if the process should run in the background, False otherwise
 def exec_process(tokens, bg):
 	try:
 		signal.signal(signal.SIGINT, signal_handler)
@@ -70,7 +92,8 @@ def exec_process(tokens, bg):
 			out, err = p.communicate(timeout=10**3)
 			return out + err
 		else:
-			basic_programs.processes.append(p)
+			print(p.pid)
+			basic_programs.processes[p.pid] = [p, "running"]
 			return None
 
 	except subprocess.TimeoutExpired:
@@ -82,10 +105,26 @@ def exec_process(tokens, bg):
 	except Exception as e:
 		if e.args[0] == signal.strsignal(signal.SIGTSTP):
 			p.send_signal(signal.SIGTSTP)
-			basic_programs.processes.append(p)
+			basic_programs.processes[p.pid] = [p, "stopped"]
 		elif e.args[0] == signal.strsignal(signal.SIGINT):
 			p.send_signal(signal.SIGINT)
-		print(type(e).__name__ + ": " + str(e.args[0]))
+		display_exception(e)
+
+# For command substitution
+# Replaces deepest instance of $(command) with output from command
+def subcommand_handler(stdin, im):
+	# find deepest occurence of $, index = len(stdin) - 1 - (first index of $ in reversed stdin)
+	index1 = len(stdin) - 1 - (stdin[::-1].index('($'))
+	index2 = stdin.index(')', index1)
+	c = stdin[index1 + 1 : index2]
+	
+	# execute command 
+	output = exec_command(c, im)
+	if output is None: 
+		output = ''
+
+	# replace $(command) with output
+	return stdin.replace('$(' + c + ')', output.decode('utf-8').strip())
 
 if __name__ == '__main__':
 	main()
