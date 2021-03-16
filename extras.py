@@ -24,29 +24,19 @@ def SpONgeBoBtEXt(args):
 
 	return spongetext
 
-# Return none if arguments or flags are not valid
-# oosh
-def add(song_list, val):
+# Creates an Array of favorite songs where you can add or remove songs
+song_list = []
+
+def djooshAdd(args, flags, song_list, val):
 	if val not in song_list: 
 		song_list.append(val)
 		return "Song successfully added"
 	else: 
 		return "Song already added"
 
-
-def remove(song_list, val):
+def djooshRemove(args, flags, song_list, val):
 	if val in song_list: 
 		song_list.remove(val)
 		return "Song successfully removed"
 	else: 
 		return "Song does not exist"
-
-
-# Basic Idea: Saves songs that you like in a file that you can add or remove
-def djoosh(args, flags):
-	song_list = []
-
-	flag_dictionary = {"-a": add,
-						"-r": remove}
-
-	return song_list
