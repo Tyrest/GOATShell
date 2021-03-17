@@ -1,0 +1,8 @@
+ls
+cd .
+ls
+pwd
+jobs
+echo dog
+echo dog | echo
+exit
