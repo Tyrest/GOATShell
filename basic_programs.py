@@ -116,6 +116,7 @@ def check_processes():
 			print("{}\t{}\t{}\n".format(pid, val[1], " ".join(val[0].args)))
 			status = val[0].returncode
 			if status:
+				print(signal.strsignal(-status))
 				print("Process was terminated improperly")
 			val[0].kill()
 		else:
