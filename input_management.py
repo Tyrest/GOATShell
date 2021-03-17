@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shlex
 class input_manager:
     def __init__(self, fns):
         self.functions = fns
@@ -16,7 +17,7 @@ class input_manager:
 
         file_in, file_out, stdin = self.in_out_info(stdin)
         tokens = stdin.split("|")
-        tokens = list(map(lambda x: x.split(), tokens))
+        tokens = list(map(lambda x: shlex.split(x), tokens))
 
         # separate fn name from args
         return bg, file_in, file_out, list(map(lambda x: [x[0], x[1:]], tokens))
@@ -31,7 +32,7 @@ class input_manager:
             # take the last occurence of >
             i = len(s) - 1 - s[::-1].index(">")
             # make sure character isn't escaped by surrounding quotation marks
-            if "\'" in s[i:] or "\" " in s[i: ]: 
+            if "\'" in s[i:] or "\"" in s[i: ]: 
                 stdout = subprocess.PIPE
             else:
                 # check if > or >>; if so, make sure previous > isn't escaped
@@ -49,7 +50,7 @@ class input_manager:
             i = s.index("<")
 
             # make sure character isn't escaped by surrounding quotation marks
-            if "\'" in s[:i] or "\" " in s[:i]: 
+            if "\'" in s[:i] or "\"" in s[:i]: 
                 stdin = subprocess.PIPE
             else:
                 # consider pipes?

@@ -73,14 +73,21 @@ def exec_command(stdin, im):
 			fn_args.append(pipe_input.name)
 
 		if fn_name not in builtin_names:
-			if len(fn_args) > 0 and len(glob.glob(fn_args[0])) != 0 and fn_name != "echo":
+			nonflag_args = [i for i in fn_args if "-" != i[0]]
+			if len(nonflag_args) > 0 and fn_name != 'echo':
+				glob_arg = nonflag_args[0]
+				glob_arg_i = fn_args.index(glob_arg)
 				output = b''
-				for path in glob.glob(fn_args[0]):
-					out, err = exec_process([fn_name] + [path], bg, file_in, file_out)
+				if len(glob.glob(glob_arg)) == 0:
+					raise FileNotFoundError
+				for path in glob.glob(glob_arg):
+					tokens = [fn_name] + fn_args[:glob_arg_i] + [path] + fn_args[glob_arg_i+1:]
+					out, err = exec_process(tokens, bg, file_in, file_out)
 					if len(err.strip()) != 0:
 						raise Exception(err)
 					else:
 						output += out
+				
 			else:
 				output, error = exec_process([fn_name] + fn_args, bg, file_in, file_out)
 				if len(error.strip()) != 0:
