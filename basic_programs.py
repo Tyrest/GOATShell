@@ -5,6 +5,14 @@ import time
 
 processes = {}
 
+# Signal handler for while a process is running
+# Handler set for CTRL-C (SIGINT) and CTRL-Z (SIGTSTP)
+# Raises exception with description of signal as message
+# Exception is caught in exec_process to handle cases
+def signal_handler(sig, frame):
+	raise Exception(signal.strsignal(sig))
+
+
 # Takes in complete path or end of path as argument
 # flags: none
 def cd(args):
@@ -79,9 +87,25 @@ def bg(args):
 
 # Return none if arguments or flags are not valid
 def fg(args):
-	p, status = processes.pop(args[0])
-	p.send_signal(signal.SIGCONT)
-	out, err = p.communicate(timeout=1000)
+	global processes
+	try:
+		p, status = processes.pop(int(args[0]))
+		p.send_signal(signal.SIGCONT)
+		
+		# Set signal handlers to interrupt or stop the current process
+		signal.signal(signal.SIGINT, signal_handler)
+		signal.signal(signal.SIGTSTP, signal_handler)
+
+		out, err = p.communicate()
+		return out
+
+	except Exception as e:
+		if e.args[0] == signal.strsignal(signal.SIGTSTP):
+			p.send_signal(signal.SIGTSTP)
+			processes[p.pid] = [p, "stopped"]
+		elif e.args[0] == signal.strsignal(signal.SIGINT):
+			p.send_signal(signal.SIGINT)
+		return None
 
 # Checks processes in list, prints out status/process if jobs are done and removes the process from the jobs list
 # If any processes terminated improperly, print out the signal 

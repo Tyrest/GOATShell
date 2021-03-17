@@ -3,14 +3,9 @@ import input_management
 import interface
 import extras
 from inspect import getmembers, isfunction
-import os
-import sys
-import subprocess
-import tempfile
-import signal
-import io
-import glob
+import os, sys, subprocess, tempfile, signal, io, glob
 
+# Display type and message of exception
 def display_exception(e):
 	to_print = type(e).__name__
 	if len(e.args) != 0:
@@ -18,14 +13,21 @@ def display_exception(e):
 	print(to_print)
 
 # Signal handler for while a process is running
+# Handler set for CTRL-C (SIGINT) and CTRL-Z (SIGTSTP)
+# Raises exception with description of signal as message
+# Exception is caught in exec_process to handle cases
 def signal_handler(sig, frame):
 	raise Exception(signal.strsignal(sig))
 
+# Signal handler while in main loop, when no process is running
+# Handler set for CTRL-C (SIGINT) and CTRL-Z (SIGTSTP)
+# Can't use SIG_IGN here because we have to acknowledge the signal and then return to prompt
+# exception is caught in main loop; returns to prompt and does nothing else
 def signal_none(sig, frame):
 	print("\n")
 	raise Exception
 
-# Exit program
+# Kill all processes and exit program
 def exit(args):
 	for p, status in basic_programs.processes.values():
 		p.kill()
@@ -33,14 +35,16 @@ def exit(args):
 
 # Main shell loop
 def main():
-	# get functions from files
+	# get builtins from files
 	functions = dict(getmembers(basic_programs, isfunction) + getmembers(extras, isfunction))
 	functions.update([('exit', exit)]) 
 
 	im = input_management.input_manager(functions)
 	while(True):
+		# checks on jobs
 		basic_programs.check_processes()
 		
+		# Set signal handlers to 
 		signal.signal(signal.SIGINT, signal_none)
 		signal.signal(signal.SIGTSTP, signal_none)
 		try:
@@ -73,30 +77,32 @@ def exec_command(stdin, im):
 			fn_args.append(pipe_input.name)
 
 		if fn_name not in builtin_names:
+			exec_normal = True
 			nonflag_args = [i for i in fn_args if "-" != i[0]]
 			if len(nonflag_args) > 0 and fn_name != 'echo':
 				glob_arg = nonflag_args[0]
 				glob_arg_i = fn_args.index(glob_arg)
 				output = b''
-				if len(glob.glob(glob_arg)) == 0:
-					raise FileNotFoundError
+				if len(glob.glob(glob_arg)) != 0:
+					exec_normal = False
 				for path in glob.glob(glob_arg):
 					tokens = [fn_name] + fn_args[:glob_arg_i] + [path] + fn_args[glob_arg_i+1:]
 					out, err = exec_process(tokens, bg, file_in, file_out)
-					if len(err.strip()) != 0:
-						raise Exception(err)
+					if len(err.decode('utf-8').strip()) != 0:
+						raise Exception(err.decode('utf-8'))
 					else:
 						output += out
 				
-			else:
+			if exec_normal == True:
 				output, error = exec_process([fn_name] + fn_args, bg, file_in, file_out)
-				if len(error.strip()) != 0:
-					raise Exception(error)
+				if len(error.decode('utf-8').strip()) != 0:
+					raise Exception(error.decode('utf-8'))
 			if pipe_input is not None:
 				pipe_input.close()
 		else:
 			output = builtins[fncall[0]](fn_args)
-			output = output.encode('utf-8')
+			if output is not None: 
+				output = output.encode('utf-8')
 		if output is not None:
 			#print(output)
 			# Pass temporary file to next function call
@@ -105,6 +111,7 @@ def exec_command(stdin, im):
 	return output
 
 # Executes non-built-in from tokens
+# Returns output, error as bytes
 # bg is True if the process should run in the background, False otherwise
 def exec_process(tokens, bg, file_in, file_out):
 	try:
@@ -112,20 +119,14 @@ def exec_process(tokens, bg, file_in, file_out):
 		signal.signal(signal.SIGINT, signal_handler)
 		signal.signal(signal.SIGTSTP, signal_handler)
 
-		p = subprocess.Popen(tokens, shell=False, stdin=file_in, stdout=file_out, stderr=subprocess.PIPE)
+		p = subprocess.Popen(tokens, shell=False, start_new_session=True, stdin=file_in, stdout=file_out, stderr=subprocess.PIPE)
 
 		if bg == False:
-			out, err = p.communicate(timeout=10**3)
-			return out, err.decode('utf-8')
+			out, err = p.communicate()
+			return out, err
 		else:
 			basic_programs.processes[p.pid] = [p, "running"]
-			return None, None
-
-	except subprocess.TimeoutExpired:
-		print("Timeout expired. Killing process...")
-		p.kill()
-		out, err = p.communicate(timeout=10**3)
-		return out, err
+			return None, b''
 
 	except Exception as e:
 		if e.args[0] == signal.strsignal(signal.SIGTSTP):
@@ -134,7 +135,7 @@ def exec_process(tokens, bg, file_in, file_out):
 		elif e.args[0] == signal.strsignal(signal.SIGINT):
 			p.send_signal(signal.SIGINT)
 		display_exception(e)
-		return None, e.__repr__()
+		return None, e.__repr__().encode('utf-8')
 
 # For command substitution
 # Replaces deepest instance of $(command) with output from command
