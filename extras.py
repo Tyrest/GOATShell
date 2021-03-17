@@ -30,7 +30,7 @@ song_list = []
 
 def djooshAdd(args):
 	if args not in song_list: 
-		song_list.append(args)
+		song_list += args
 		return "Song successfully added"
 	else: 
 		return "Song already added"
