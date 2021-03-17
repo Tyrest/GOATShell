@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import signal
 import io
+import glob
 
 def display_exception(e):
 	to_print = type(e).__name__
@@ -71,7 +72,12 @@ def exec_command(stdin, im):
 		if pipe_input is not None: fn_args.append(pipe_input.name)
 
 		if fn_name not in builtin_names:
-			output = exec_process([fn_name] + fn_args, bg)
+			if len(glob.glob(fn_args[0])) != 0 and fn_name != "echo":
+				output = ""
+				for path in glob.iglob(fn_args[0]):
+					output += exec_process([fn_name] + path, bg) + '\n'
+			else:
+				output = exec_process([fn_name] + fn_args, bg)
 			if pipe_input is not None: pipe_input.close()
 		else:
 			output = builtins[fncall[0]](fn_args)
