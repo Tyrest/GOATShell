@@ -26,7 +26,7 @@ def signal_none(sig, frame):
 	raise Exception
 
 # Exit program
-def exit(args, flags):
+def exit(args):
 	for p, status in basic_programs.processes.values():
 		p.kill()
 	sys.exit(0)
@@ -63,7 +63,7 @@ def exec_command(stdin, im):
 	# handle case of subcommands
 	while '$(' in stdin:
 		stdin = subcommand_handler(stdin, im)
-	bg, t = im.parse(stdin)
+	bg, file_in, file_out, t = im.parse(stdin)
 
 	pipe_input = None
 	for fncall in t:
@@ -77,7 +77,7 @@ def exec_command(stdin, im):
 				for path in glob.iglob(fn_args[0]):
 					output += exec_process([fn_name] + path, bg) + '\n'
 			else:
-				output = exec_process([fn_name] + fn_args, bg)
+				output = exec_process([fn_name] + fn_args, bg, file_in, file_out)
 			if pipe_input is not None: pipe_input.close()
 		else:
 			output = builtins[fncall[0]](fn_args)
@@ -90,11 +90,11 @@ def exec_command(stdin, im):
 
 # Executes non-built-in from tokens
 # bg is True if the process should run in the background, False otherwise
-def exec_process(tokens, bg):
+def exec_process(tokens, bg, file_in, file_out):
 	try:
 		signal.signal(signal.SIGINT, signal_handler)
 		signal.signal(signal.SIGTSTP, signal_handler)
-		current_process = p = subprocess.Popen(tokens, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		p = subprocess.Popen(tokens, shell=False, stdin=file_in, stdout=file_out, stderr=subprocess.PIPE)
 
 		if bg == False:
 			out, err = p.communicate(timeout=10**3)
