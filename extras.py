@@ -1,5 +1,6 @@
 # Return none if arguments or flags are not valid
 # george
+import random
 def SpONgeBoBtEXt(args, flags):
 
 	#initialize spongetext variable
