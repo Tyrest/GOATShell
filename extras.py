@@ -4,7 +4,7 @@ def SpONgeBoBtEXt(args, flags):
 
 	#initialize spongetext variable
 	spongetext = ""
-	for char in i:
+	for char in args[0]:
 		
 		#check if the character is in the alphabet
 		if char.isalpha():
