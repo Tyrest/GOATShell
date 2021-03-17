@@ -1,0 +1,21 @@
+GOATS: 
+goals.txt
+inputs.txt
+outputs.txt
+test.sh
+test_extras.py
+GOATS: 
+GOATS: 
+goals.txt
+inputs.txt
+outputs.txt
+test.sh
+test_extras.py
+GOATS: 
+/Users/mainfolder/GOATShell/GOATShell/Testing
+GOATS: 
+GOATS: 
+dog
+GOATS: 
+dog | echo
+GOATS: 

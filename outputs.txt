@@ -1,0 +1,17 @@
+GOATS: goals.txt
+inputs.txt
+outputs.txt
+test.sh
+test_extras.py
+GOATS: AttributeError: 'NoneType' object has no attribute 'encode'
+GOATS: goals.txt
+inputs.txt
+outputs.txt
+test.sh
+test_extras.py
+GOATS: /Users/mainfolder/GOATShell/GOATShell/Testing
+AttributeError: 'NoneType' object has no attribute 'encode'
+GOATS: 
+GOATS: dog
+GOATS: /var/folders/ty/9q1pz0310vn8hzhnk80ny9_m0000gn/T/tmp0w47azmx
+GOATS: 
