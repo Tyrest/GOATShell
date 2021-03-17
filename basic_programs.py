@@ -61,6 +61,10 @@ def fg(args):
 	p.send_signal(signal.SIGCONT)
 	out, err = p.communicate(timeout=1000)
 
+# Returns input	
+def echo(args, flags):
+	print(" ".join(args + flags))
+
 # Checks processes in list, prints out status/process if jobs are done and removes the process from the jobs list
 # If any processes terminated improperly, print out the signal 
 def check_processes():
