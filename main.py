@@ -69,46 +69,56 @@ def exec_command(stdin, im):
 	for fncall in t:
 		fn_name = fncall[0]; fn_args = fncall[1]
 		
-		if pipe_input is not None: fn_args.append(pipe_input.name)
+		if pipe_input is not None:
+			fn_args.append(pipe_input.name)
 
 		if fn_name not in builtin_names:
-			if len(glob.glob(fn_args[0])) != 0 and fn_name != "echo":
-				output = ""
-				for path in glob.iglob(fn_args[0]):
-					output += exec_process([fn_name] + path, bg) + '\n'
+			if len(fn_args) > 0 and len(glob.glob(fn_args[0])) != 0 and fn_name != "echo":
+				output = b''
+				for path in glob.glob(fn_args[0]):
+					out, err = exec_process([fn_name] + [path], bg, file_in, file_out)
+					if len(err.strip()) != 0:
+						raise Exception(err)
+					else:
+						output += out
 			else:
-				output = exec_process([fn_name] + fn_args, bg, file_in, file_out)
-			if pipe_input is not None: pipe_input.close()
+				output, error = exec_process([fn_name] + fn_args, bg, file_in, file_out)
+				if len(error.strip()) != 0:
+					raise Exception(error)
+			if pipe_input is not None:
+				pipe_input.close()
 		else:
 			output = builtins[fncall[0]](fn_args)
-			if output is not None:
-				output = output.encode('utf-8')
-				# Pass temporary file to next function call
-				pipe_input = tempfile.NamedTemporaryFile()
-				pipe_input.write(output); pipe_input.seek(0)
+			output = output.encode('utf-8')
+		if output is not None:
+			#print(output)
+			# Pass temporary file to next function call
+			pipe_input = tempfile.NamedTemporaryFile()
+			pipe_input.write(output); pipe_input.seek(0)
 	return output
 
 # Executes non-built-in from tokens
 # bg is True if the process should run in the background, False otherwise
 def exec_process(tokens, bg, file_in, file_out):
 	try:
+		# Set signal handlers to interrupt or stop the current process
 		signal.signal(signal.SIGINT, signal_handler)
 		signal.signal(signal.SIGTSTP, signal_handler)
+
 		p = subprocess.Popen(tokens, shell=False, stdin=file_in, stdout=file_out, stderr=subprocess.PIPE)
 
 		if bg == False:
 			out, err = p.communicate(timeout=10**3)
-			return out + err
+			return out, err.decode('utf-8')
 		else:
-			print(p.pid)
 			basic_programs.processes[p.pid] = [p, "running"]
-			return None
+			return None, None
 
 	except subprocess.TimeoutExpired:
 		print("Timeout expired. Killing process...")
 		p.kill()
 		out, err = p.communicate(timeout=10**3)
-		return out + err
+		return out, err
 
 	except Exception as e:
 		if e.args[0] == signal.strsignal(signal.SIGTSTP):
@@ -117,6 +127,7 @@ def exec_process(tokens, bg, file_in, file_out):
 		elif e.args[0] == signal.strsignal(signal.SIGINT):
 			p.send_signal(signal.SIGINT)
 		display_exception(e)
+		return None, e.__repr__()
 
 # For command substitution
 # Replaces deepest instance of $(command) with output from command

@@ -37,10 +37,10 @@ class input_manager:
                 # check if > or >>; if so, make sure previous > isn't escaped
                 if len(s[:i]) > 1 and s[i-1] == '>' and s[i-2] != '\\':
                     stdout = open(s[i+1:].strip(), 'a')
-                    s = s[i+1:]
+                    s = s[:i]
                 else:
                     stdout = open(s[i+1:].strip(), 'w')
-                    s = s[i+1:]
+                    s = s[:i]
         else:
             stdout = subprocess.PIPE
 
@@ -54,7 +54,7 @@ class input_manager:
             else:
                 # consider pipes?
                 stdin = open(s[:i], 'r')
-                s = s[:i]
+                s = s[i+1:]
         else:
             stdin = subprocess.PIPE
         return stdin, stdout, s

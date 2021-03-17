@@ -1,7 +1,6 @@
-import subprocess
-import os
+import os, subprocess
 # Takes in input string from stdin
-# Return (value for Popen stdin arg, value for Popen stdout arg)
+# Return (value for Popen stdin arg, value for Popen stdout arg, s without in/out redirectors)
 # Valid values are PIPE, DEVNULL, an existing file descriptor (a positive integer), an existing file object, and None.
 def in_out_info(s):
     # characters are escaped if occurrences of \> = occurences of >
@@ -16,8 +15,10 @@ def in_out_info(s):
             # check if > or >>; if so, make sure previous > isn't escaped
             if len(s[:i]) > 1 and s[i-1] == '>' and s[i-2] != '\\':
                 stdout = open(s[i+1:].strip(), 'a')
+                s = s[i+1:]
             else:
                 stdout = open(s[i+1:].strip(), 'w')
+                s = s[i+1:]
     else:
         stdout = subprocess.PIPE
 
@@ -31,6 +32,9 @@ def in_out_info(s):
         else:
             # consider pipes?
             stdin = open(s[:i], 'r')
+            s = s[:i]
     else:
         stdin = subprocess.PIPE
-    return stdin, stdout
+    return stdin, stdout, s
+s = "echo hellohello >/Users/Sarah/Desktop/test.py"
+print(in_out_info(s))
