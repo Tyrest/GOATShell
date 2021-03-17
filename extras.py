@@ -1,10 +1,10 @@
 # Return none if arguments or flags are not valid
 # george
-def SpONgeBoBtEXt(args):
+def SpONgeBoBtEXt(args, flags):
 
 	#initialize spongetext variable
 	spongetext = ""
-	for char in input:
+	for char in i:
 		
 		#check if the character is in the alphabet
 		if char.isalpha():
@@ -27,14 +27,14 @@ def SpONgeBoBtEXt(args):
 # Creates an Array of favorite songs where you can add or remove songs
 song_list = []
 
-def djooshAdd(args):
+def djooshAdd(args, flags):
 	if args not in song_list: 
 		song_list.append(args)
 		return "Song successfully added"
 	else: 
 		return "Song already added"
 
-def djooshRemove(args):
+def djooshRemove(args, flags):
 	if args in song_list: 
 		song_list.remove(args)
 		return "Song successfully removed"
