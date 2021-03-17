@@ -63,7 +63,7 @@ def fg(args):
 
 # Returns input	
 def echo(args, flags):
-	print(" ".join(args + flags))
+	return " ".join(args + flags)
 
 # Checks processes in list, prints out status/process if jobs are done and removes the process from the jobs list
 # If any processes terminated improperly, print out the signal 
