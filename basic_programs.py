@@ -50,8 +50,6 @@ def help(args, flags):
 							"fg": "move jobs to the foreground", 
 
 							"SpONgeBoBtEXt": "randomly capitalizes letters in user input",
-							"meme": "generates a random meme", 
-							"mege": "makes a meme using user input", 
 							"djoosh": "makes an array for favorited songs", 
 							"autocomplete": "returns the closest named command"}
 
