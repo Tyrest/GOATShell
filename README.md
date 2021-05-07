@@ -8,7 +8,7 @@ Sarah Fujimori (sarah.fujimori@menloschool.org)
 
 Aayush Goyal (aayush.goyal@menloschool.org)
 
-Tyler Ho (https://twitch.tv/tyresty)
+Tyler Ho (tyler.ho@menloschool.org)
 
 Oliver Lee (oliver.lee@menloschool.org)
 
